@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>WatchCat</title>
+    <script src="/js/lottie-player.js"></script>
+
+    <!-- Bootstrap 5 -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+
+
+        .transition-hover {
+            transition: all 0.3s ease;
+        }
+
+        .transition-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.75rem 1.5rem rgba(13, 110, 253, 0.25);
+        }
+
+        lottie-player {
+            max-width: 100%;
+        }
+
+
+        body {
+            padding-top: 70px; /* évite que le contenu soit caché derrière navbar fixe */
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .transition-hover {
+            transition: all 0.3s ease;
+        }
+
+        .transition-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Button hover effect */
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        /* Card hover effect */
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        /* Smooth theme transition */
+        html {
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Optional: subtle background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -50px;
+            left: -50px;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 20%, #e0f7ff 0%, transparent 70%);
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+        }
+        .hero {
+            margin-top: 5rem;
+        }
+        .btn-lg {
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ✅ NAVBAR -->
+<nav id="mainNavbar" class="navbar navbar-expand-lg bg-body-tertiary shadow-sm fixed-top transition-hover">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <img src="/icons/activity.svg" alt="logo" width="24" height="24" class="me-2">
+            WatchCat
+        </a>
+
+
+        <div class="d-flex align-items-center ms-auto">
+            <span class="me-2">Theme</span>
+            <img id="themeIcon" src="/icons/moon.svg" alt="theme" width="24" height="24" style="cursor: pointer;">
+        </div>
+
+
+    </div>
+</nav>
+
+
+<!-- ✅ HERO SECTION -->
+<div class="container text-center my-5 fade-in">
+    <h1 class="display-5 fw-bold mb-4">Welcome to WatchCat</h1>
+    <p class="lead mb-4">Real-time Supervision for your Machines & Services</p>
+
+    <!-- Lottie container -->
+    <div class="d-flex justify-content-center align-items-center">
+        <lottie-player
+                src="/lottie/hero-cat.json"
+                background="transparent"
+                speed="1"
+                style="width: 250px; height: 250px;"
+                loop
+                autoplay>
+        </lottie-player>
+    </div>
+
+    <a href="/supervision/form#vm" class="btn btn-outline-primary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover">
+         Get Started
+    </a>
+</div>
+
+
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Sticky navbar effet
+    window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('mainNavbar');
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlTag = document.documentElement;
+
+    // ⬇️ Appliquer le thème sauvegardé au chargement
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        htmlTag.setAttribute('data-bs-theme', savedTheme);
+        themeIcon.src = savedTheme === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
+
+
+
+    }
+
+        // Toggle on click
+        themeIcon.addEventListener('click', () => {
+        const current = htmlTag.getAttribute('data-bs-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        htmlTag.setAttribute('data-bs-theme', next);
+        localStorage.setItem('theme', next);
+        themeIcon.src = next === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
+    });
+
+
+
+
+
+
+
+</script>
+
+
+<!-- Dépendances WebSocket pour STOMP -->
+<script src="/js/sockjs.min.js"></script>
+<script src="/js/stomp.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+
+        const socket = new SockJS('/ws-notifications');
+        const stompClient = Stomp.over(socket);
+
+        const notificationQueue = [];
+        let isNotifying = false;
+
+        function processQueue() {
+            if (isNotifying || notificationQueue.length === 0) return;
+
+            isNotifying = true;
+            const alertText = notificationQueue.shift();
+
+            const audio = new Audio('/sounds/notification.mp3');
+            audio.play().catch(() => {});
+
+            const notification = new Notification("🚨 Service Alert", {
+                body: alertText,
+                icon: "/icons/alert.svg"
+            });
+
+            setTimeout(() => {
+                notification.close();
+                isNotifying = false;
+                processQueue(); // affiche la suivante
+            }, 5000); // délai entre chaque affichage (réglable)
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+        }
+
+        stompClient.connect({}, () => {
+            stompClient.subscribe('/topic/service-alerts', (message) => {
+                if (Notification.permission === "granted") {
+                    notificationQueue.push(message.body);
+                    processQueue();
+                }
+            });
+        });
+    });
+</script>
+
+
+</body>
+</html>
