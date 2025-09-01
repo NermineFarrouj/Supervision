@@ -26,10 +26,12 @@ public class VMStatusController {
 
     //  Obtenir les statuts de toutes les VMs dans une periode
     @GetMapping("/between")
-    public List<VMStatus> getStatusBetween(@RequestParam String start, @RequestParam String end) {
+    public List<VMStatus> getStatusBetween(@RequestParam String ip,@RequestParam int port,@RequestParam String start, @RequestParam String end) {
+
+
         LocalDateTime startDate = LocalDateTime.parse(start);
         LocalDateTime endDate = LocalDateTime.parse(end);
-        return vmStatusRepository.findByTestedAtBetween(startDate, endDate);
+        return vmStatusRepository.findByIpAddressAndPortAndTestedAtBetween(ip,port,startDate, endDate);
     }
 
     //  Obtenir le statut d’une VM dans une periode

@@ -1,45 +1,94 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="fr" data-bs-theme="light">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
   <title>WatchCat</title>
 
-  <!-- Bootstrap 5 -->
   <link href="/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/bootstrap-icons.css" rel="stylesheet">
 
   <style>
-
-
-
-
     .fade-scroll {
       opacity: 0;
       transform: translateY(30px);
       transition: all 0.7s ease-out;
     }
 
-    .fade-scroll.visible {
+    h1, h2, h3,h4 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+
+
+      position: relative;
+      display: inline-block;
+
+
+
+
+
+      font-size: 2rem;
+
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+    }
+    h1::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0;
+      height: 3px;
+      background-image: linear-gradient(to right, #00c6ff,#0bb0e7ee,#008cff);
+      transition: width 0.2s ease;
+    }
+
+    h1:hover::after {
+      width: 100%;
+    }
+    h4 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #222;
+
+      position: relative;
+      display: inline-block;
+
+
+
+
+
+      font-size: 1.5rem;
+
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+    }
+    /* Debug info styling */
+    .debug-info {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      max-width: 300px;
+    }
+
+    .fade-scroll {
       opacity: 1;
       transform: translateY(0);
     }
 
-
     body {
-      padding-top: 70px; /* évite que le contenu soit caché derrière navbar fixe */
-    }
-
-    .transition {
-      transition: box-shadow 0.3s ease, background-color 0.3s ease;
-    }
-
-    .navbar.scrolled {
-      box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.15);
-      background-color: var(--bs-body-bg) !important;
+      padding-top: 70px;
     }
 
 
-    /* Fade-in animation for content */
+
+
     .fade-in {
       opacity: 0;
       transform: translateY(30px);
@@ -53,7 +102,6 @@
       }
     }
 
-    /* Button hover effect */
     .btn {
       transition: all 0.3s ease;
     }
@@ -63,7 +111,6 @@
       box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
 
-    /* Card hover effect */
     .card {
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -73,12 +120,10 @@
       box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
     }
 
-    /* Smooth theme transition */
     html {
       transition: background-color 0.5s ease, color 0.5s ease;
     }
 
-    /* Optional: subtle background */
     body::before {
       content: "";
       position: fixed;
@@ -92,147 +137,230 @@
       pointer-events: none;
     }
 
-
     body {
       background-color: var(--bs-body-bg);
       color: var(--bs-body-color);
     }
+
     .card {
       margin-top: 2rem;
     }
-    .theme-toggle {
-      cursor: pointer;
-    }
+
+
   </style>
 </head>
 <body>
 
-<!-- ✅ NAVBAR -->
-<nav id="mainNavbar" class="navbar navbar-expand-lg bg-body-tertiary shadow-sm fixed-top transition">
+<nav id="mainNavbar" class="navbar navbar-expand-lg bg-body-tertiary shadow-sm fixed-top transition-hover fade-in">
   <div class="container">
     <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
       <img src="/icons/activity.svg" alt="logo" width="24" height="24" class="me-2">
       WatchCat
     </a>
 
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <div class="d-flex align-items-center ms-auto">
-      <span class="me-2">Theme</span>
-      <img id="themeIcon" src="/icons/moon.svg" alt="theme" width="24" height="24" style="cursor: pointer;">
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto me-3">
+        <li class="nav-item">
+          <a class="nav-link fw-semibold" href="/supervision/form">
+            Supervise
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-semibold" href="/test">
+            Test
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-semibold" href="/history">
+            History
+          </a>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center">
+        <img id="themeIcon" src="/icons/moon.svg" alt="theme" width="24" height="24" style="cursor: pointer;">
+      </div>
     </div>
-
-
   </div>
 </nav>
 
-<div id="loadingSpinner" class="text-center mt-4" style="display:none;">
-  <div class="spinner-border text-primary" role="status"></div>
-  <p class="mt-2">Loading...</p>
-</div>
-
-<!-- ✅ CONTENU PRINCIPAL -->
 <div class="container fade-in">
-  <!-- Your content -->
-
   <h1 class="text-center mt-5 mb-4">
-     Supervise
+    Supervise
   </h1>
 
-
-
-  <!-- Messages -->
   <div th:if="${message}" class="alert alert-success text-center" th:text="${message}"></div>
   <div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
 
-  <!-- Supervision VM -->
-  <div class="card shadow-sm fade-scroll" id="vm">
-    <div class="card-body">
-      <h4 class="card-title mb-3">
-        <img src="/icons/hdd-network.svg" width="20" height="20" class="me-1" alt="VM">
-        Start
-      </h4>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card shadow-sm fade-scroll" id="vm">
+        <div class="card-body">
+          <h4 class="card-title mb-3">
+            <img src="/icons/hdd-network.svg" width="20" height="20" class="me-1" alt="VM">
+            Machines :
+          </h4>
 
-      <form th:action="@{/supervision/startVM}" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+          <form th:action="@{/supervision/startVM}" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
 
-        <div class="mb-3">
-          <label class="form-label">Fichier VMs :</label>
-          <input type="file" name="file" class="form-control" required />
+            <div class="mb-3" th:unless="${vmRunning}">
+              <label class="form-label">Machine files :</label>
+              <div id="vm-files-container">
+                <div class="input-group mb-2">
+                  <input type="file" name="files" class="form-control" accept=".txt,.csv,.json" required>
+                  <button type="button" class="btn btn-outline-danger" onclick="removeFileInput(this)" style="display:none;">
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addFileInput('vm-files-container')">
+                Add files
+              </button>
+            </div>
+
+            <div class="mb-3" th:if="${vmRunning}">
+              <label class="form-label">Supervising... :</label>
+              <div class="alert alert-info">
+                <ul class="mb-0" th:if="${vmFiles != null and !vmFiles.isEmpty()}">
+                  <li th:each="file : ${vmFiles}" th:text="${file}"></li>
+                </ul>
+                <span th:if="${vmFiles == null or vmFiles.isEmpty()}">No file detected</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Interval (minutes) :</label>
+              <label>
+                <input type="number" name="intervalMinutes" class="form-control" min="1" value="1"
+                       required th:disabled="${vmRunning}"/>
+              </label>
+              <div th:if="${vmRunning}" class="form-text text-success">
+                Supervision active (interval : <span th:text="${vmInterval}"></span> min).
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <button type="submit" class="btn btn-outline-primary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" th:unless="${vmRunning}">
+                START
+              </button>
+
+              <div th:if="${vmRunning}" class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-danger btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" onclick="stopSupervision('VM')">
+                  STOP
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-3" th:unless="${vmRunning}">
+              <small class="text-muted">
+                Selected files : <span id="vm-file-count">1</span>
+              </small>
+            </div>
+          </form>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Intervalle (minutes) :</label>
-          <input type="number" name="intervalMinutes" class="form-control" min="1" value="1" required />
-        </div>
-        <button type="submit" class="btn btn-primary">
-          <img src="/icons/play-fill.svg" width="20" height="20" class="me-1" alt="Play">
-          Start
-        </button>
-
-      </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Supervision MS -->
-  <div class="card shadow-sm fade-scroll" id="ms">
-    <div class="card-body">
-      <h4 class="card-title mb-3">
-        <img src="/icons/cloud-check.svg" width="20" height="20" class="me-1" alt="MS">
-        Start service supervision
-      </h4>
+    <div class="col-md-6">
+      <div class="card shadow-sm fade-scroll" id="ms">
+        <div class="card-body">
+          <h4 class="card-title mb-3">
+            <img src="/icons/cloud-check.svg" width="20" height="20" class="me-1" alt="MS">
+            Services :
+          </h4>
 
-      <form th:action="@{/supervision/startMS}" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+          <form th:action="@{/supervision/startMS}" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
 
-        <div class="mb-3">
-          <label class="form-label">service file :</label>
-          <input type="file" name="file" class="form-control" required />
+            <div class="mb-3" th:unless="${msRunning}">
+              <label class="form-label">Service files :</label>
+              <div id="ms-files-container">
+                <div class="input-group mb-2">
+                  <input type="file" name="files" class="form-control" accept=".txt,.csv,.json" required>
+                  <button type="button" class="btn btn-outline-danger" onclick="removeFileInput(this)" style="display:none;">
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addFileInput('ms-files-container')">
+                Add files
+              </button>
+            </div>
+
+            <div class="mb-3" th:if="${msRunning}">
+              <label class="form-label">Supervising... :</label>
+              <div class="alert alert-info">
+                <ul class="mb-0" th:if="${msFiles != null and !msFiles.isEmpty()}">
+                  <li th:each="file : ${msFiles}" th:text="${file}"></li>
+                </ul>
+                <span th:if="${msFiles == null or msFiles.isEmpty()}">No file detected</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Interval (minutes) :</label>
+              <label>
+                <input type="number" name="intervalMinutes" class="form-control" min="1" value="1"
+                       required th:disabled="${msRunning}" />
+              </label>
+              <div th:if="${msRunning}" class="form-text text-success">
+                Supervision active (interval : <span th:text="${msInterval}"></span> min).
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <button type="submit" class="btn btn-outline-primary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" th:unless="${msRunning}">
+                START
+              </button>
+
+              <div th:if="${msRunning}" class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-danger btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" onclick="stopSupervision('MS')">
+                  STOP
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-3" th:unless="${msRunning}">
+              <small class="text-muted">
+                Selected files : <span id="ms-file-count">1</span>
+              </small>
+            </div>
+          </form>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Interval (minutes) :</label>
-          <input type="number" name="intervalMinutes" class="form-control" min="1" value="1" required />
-        </div>
-        <button type="submit" class="btn btn-primary">
-          <img src="/icons/play-fill.svg" width="20" height="20" class="me-1" alt="Play">
-          Start
-        </button>
-
-      </form>
-    </div>
-  </div>
-
-  <!-- Arrêt Supervision -->
-  <div class="card shadow-sm mb-5 fade-scroll">
-    <div class="card-body">
-      <h4 class="card-title mb-3">
-        <img src="/icons/stop-circle.svg" width="20" height="20" class="me-1" alt="Stop">
-        Stop supervision
-      </h4>
-
-      <div class="d-flex gap-3">
-        <form th:action="@{/supervision/stop/vm}" method="post" onsubmit="showLoading()">
-          <button type="submit" class="btn btn-danger">
-            <img src="/icons/x-circle.svg" width="20" height="20" class="me-1" alt="Stop VM">
-            Stop machines
-          </button>
-
-        </form>
-        <form th:action="@{/supervision/stop/ms}" method="post" onsubmit="showLoading()">
-          <button type="submit" class="btn btn-danger">
-            <img src="/icons/x-circle.svg" width="20" height="20" class="me-1" alt="Stop MS">
-            Stop services
-          </button>
-
-        </form>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ✅ Bootstrap JS -->
+<div class="modal fade" id="loadingModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Starting...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="debugInfo" class="debug-info" style="display: none;">
+  <div>WebSocket Status: <span id="wsStatus">Disconnected</span></div>
+  <div>Notifications: <span id="notificationStatus">Unknown</span></div>
+  <div>Last Message: <span id="lastMessage">None</span></div>
+</div>
+
+
 <script src="/js/bootstrap.bundle.min.js"></script>
 
-<!-- ✅ Script pour le thème clair/sombre -->
 <script>
-
-
+  // JS from previous response for animations, navbar, and theme toggle
   const faders = document.querySelectorAll('.fade-scroll');
 
   const appearOnScroll = new IntersectionObserver((entries, observer) => {
@@ -246,32 +374,20 @@
 
   faders.forEach(el => appearOnScroll.observe(el));
 
-
-  function showLoading() {
-    document.getElementById("loadingSpinner").style.display = "block";
-  }
-
-  // Sticky navbar effet
   window.addEventListener('scroll', () => {
     const navbar = document.getElementById('mainNavbar');
     navbar.classList.toggle('scrolled', window.scrollY > 50);
   });
 
-
   const themeIcon = document.getElementById('themeIcon');
   const htmlTag = document.documentElement;
 
-  // ⬇️ Appliquer le thème sauvegardé au chargement
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
     htmlTag.setAttribute('data-bs-theme', savedTheme);
     themeIcon.src = savedTheme === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
-
-
-
   }
 
-  // Toggle on click
   themeIcon.addEventListener('click', () => {
     const current = htmlTag.getAttribute('data-bs-theme');
     const next = current === 'dark' ? 'light' : 'dark';
@@ -279,23 +395,151 @@
     localStorage.setItem('theme', next);
     themeIcon.src = next === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
   });
-</script>
 
+  // JS from your new example for dynamic file inputs and stop supervision
+  function addFileInput(containerId) {
+    const container = document.getElementById(containerId);
+    const fileInputs = container.querySelectorAll('input[type="file"]');
 
-<!-- Dépendances WebSocket pour STOMP -->
-<script src="/js/sockjs.min.js"></script>
-<script src="/js/stomp.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-      Notification.requestPermission();
+    const newInputGroup = document.createElement('div');
+    newInputGroup.className = 'input-group mb-2';
+    newInputGroup.innerHTML = `
+            <input type="file" name="files" class="form-control" accept=".txt,.csv,.json" required>
+            <button type="button" class="btn btn-outline-danger" onclick="removeFileInput(this)">
+                 Delete
+            </button>
+        `;
+
+    container.appendChild(newInputGroup);
+
+    if (fileInputs.length === 1) {
+      const firstRemoveBtn = container.querySelector('.btn-outline-danger');
+      if (firstRemoveBtn) {
+        firstRemoveBtn.style.display = 'block';
+      }
     }
 
+    updateFileCount(containerId);
+  }
+
+  function removeFileInput(button) {
+    const container = button.closest('[id$="-files-container"]');
+    const inputGroup = button.closest('.input-group');
+    inputGroup.remove();
+
+    const remainingInputs = container.querySelectorAll('input[type="file"]');
+    if (remainingInputs.length === 1) {
+      const removeBtn = container.querySelector('.btn-outline-danger');
+      if (removeBtn) {
+        removeBtn.style.display = 'none';
+      }
+    }
+
+    updateFileCount(container.id);
+  }
+
+  function updateFileCount(containerId) {
+    const container = document.getElementById(containerId);
+    const fileInputs = container.querySelectorAll('input[type="file"]');
+    const countElement = document.getElementById(containerId.replace('files-container', 'file-count'));
+    if (countElement) {
+      countElement.textContent = fileInputs.length;
+    }
+  }
+
+  function stopSupervision(type) {
+    const url = type === 'VM' ? '/supervision/stopVM' : '/supervision/stopMS';
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+            .then(response => {
+              if (response.ok) {
+                location.reload();
+              } else {
+                alert('Error stopping supervision.');
+              }
+            })
+            .catch(error => {
+              alert('Error stopping supervision: ' + error);
+            });
+  }
+
+  function showLoading() {
+    const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    modal.show();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const vmContainer = document.getElementById('vm-files-container');
+    if (vmContainer) {
+      const vmInputs = vmContainer.querySelectorAll('input[type="file"]');
+      if (vmInputs.length === 1) {
+        const vmRemoveBtn = vmContainer.querySelector('.btn-outline-danger');
+        if (vmRemoveBtn) vmRemoveBtn.style.display = 'none';
+      }
+      updateFileCount('vm-files-container');
+    }
+
+    const msContainer = document.getElementById('ms-files-container');
+    if (msContainer) {
+      const msInputs = msContainer.querySelectorAll('input[type="file"]');
+      if (msInputs.length === 1) {
+        const msRemoveBtn = msContainer.querySelector('.btn-outline-danger');
+        if (msRemoveBtn) msRemoveBtn.style.display = 'none';
+      }
+      updateFileCount('ms-files-container');
+    }
+  });
+</script>
+
+<!-- WebSocket Dependencies (load only once) -->
+<script src="/js/sockjs.min.js"></script>
+<script src="/js/stomp.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔧 Initializing WebSocket notifications...');
+
+    // Debug elements
+    const debugInfo = document.getElementById('debugInfo');
+    const wsStatus = document.getElementById('wsStatus');
+    const notificationStatus = document.getElementById('notificationStatus');
+    const lastMessage = document.getElementById('lastMessage');
+
+    // Show debug info (remove this in production)
+    debugInfo.style.display = 'block';
+
+    // Request notification permission
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+      console.log('📝 Requesting notification permission...');
+      Notification.requestPermission().then(permission => {
+        console.log('🔔 Notification permission:', permission);
+        notificationStatus.textContent = permission;
+      });
+    } else {
+      console.log('🔔 Notification permission:', Notification.permission);
+      notificationStatus.textContent = Notification.permission;
+    }
+
+    // Create WebSocket connection
+    console.log('🔌 Creating WebSocket connection...');
     const socket = new SockJS('/ws-notifications');
     const stompClient = Stomp.over(socket);
 
+    // Enable STOMP debug (remove in production)
+    stompClient.debug = console.log;
+
     const notificationQueue = [];
     let isNotifying = false;
+
+    function updateStatus(status) {
+      wsStatus.textContent = status;
+      console.log('📡 WebSocket status:', status);
+    }
 
     function processQueue() {
       if (isNotifying || notificationQueue.length === 0) return;
@@ -303,36 +547,96 @@
       isNotifying = true;
       const alertText = notificationQueue.shift();
 
-      const audio = new Audio('/sounds/notification.mp3');
-      audio.play().catch(() => {});
+      console.log('🚨 Processing notification:', alertText);
+      lastMessage.textContent = alertText.substring(0, 50) + '...';
 
-      const notification = new Notification("🚨 Service Alert", {
-        body: alertText,
-        icon: "/icons/alert.svg"
-      });
+      // Try to play sound (optional)
+      try {
+        const audio = new Audio('/notification.mp3');
+        audio.play().catch(err => console.log('🔇 Audio failed:', err.message));
+      } catch (err) {
+        console.log('🔇 Audio not available');
+      }
 
-      setTimeout(() => {
-        notification.close();
+      // Show browser notification
+      if (Notification.permission === "granted") {
+        const notification = new Notification("🚨 Service Alert", {
+          body: alertText,
+          icon: "/icons/activity.svg", // Using existing icon
+          requireInteraction: false
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+
+        setTimeout(() => {
+          notification.close();
+          isNotifying = false;
+          processQueue();
+        }, 4000);
+      } else {
+        console.log('❌ Notifications not permitted');
+        // Show fallback alert
+        alert('🚨 Service Alert: ' + alertText);
         isNotifying = false;
-        processQueue(); // affiche la suivante
-      }, 5000); // délai entre chaque affichage (réglable)
-
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-      };
+        processQueue();
+      }
     }
 
-    stompClient.connect({}, () => {
-      stompClient.subscribe('/topic/service-alerts', (message) => {
-        if (Notification.permission === "granted") {
-          notificationQueue.push(message.body);
-          processQueue();
-        }
-      });
+    // Connect to WebSocket
+    stompClient.connect({},
+            // Success callback
+            (frame) => {
+              console.log('✅ WebSocket connected:', frame);
+              updateStatus('Connected');
+
+              // Subscribe to service alerts
+              stompClient.subscribe('/topic/service-alerts', (message) => {
+                console.log('📨 Received message:', message.body);
+                notificationQueue.push(message.body);
+                processQueue();
+              });
+
+              console.log('🎯 Subscribed to /topic/service-alerts');
+            },
+            // Error callback
+            (error) => {
+              console.error('❌ WebSocket connection failed:', error);
+              updateStatus('Failed: ' + error);
+
+              // Retry connection after 5 seconds
+              setTimeout(() => {
+                console.log('🔄 Retrying WebSocket connection...');
+                updateStatus('Retrying...');
+                stompClient.connect({},
+                        (frame) => {
+                          console.log('✅ WebSocket reconnected:', frame);
+                          updateStatus('Reconnected');
+                        },
+                        (retryError) => {
+                          console.error('❌ Retry failed:', retryError);
+                          updateStatus('Retry Failed');
+                        }
+                );
+              }, 5000);
+            }
+    );
+
+    // Handle page visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('👀 Page became visible');
+      }
     });
   });
 </script>
+
+
+
+
+
 
 
 </body>

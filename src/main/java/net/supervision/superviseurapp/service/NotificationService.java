@@ -12,7 +12,7 @@ public class NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
 
     public void notifyServiceDown(String serviceName) {
-        String alertMsg = "🚨 Service Alert: " + serviceName + " is DOWN";
+        String alertMsg = " Service Alert: " + serviceName + " is DOWN";
         messagingTemplate.convertAndSend("/topic/service-alerts", alertMsg);
     }
 }

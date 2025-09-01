@@ -1,0 +1,4 @@
+account-service:192.168.8.115:8082
+customer-service:192.168.8.115:8081
+discovery-service:192.168.8.115:8761
+gateway-service:192.168.8.115:8888

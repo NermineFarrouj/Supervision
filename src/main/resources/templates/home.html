@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr" data-bs-theme="light">
 <head>
@@ -10,8 +11,6 @@
     <link href="/css/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-
-
         .transition-hover {
             transition: all 0.3s ease;
         }
@@ -25,9 +24,8 @@
             max-width: 100%;
         }
 
-
         body {
-            padding-top: 70px; /* évite que le contenu soit caché derrière navbar fixe */
+            padding-top: 70px;
         }
 
         .fade-in {
@@ -39,16 +37,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .transition-hover {
-            transition: all 0.3s ease;
-        }
-
-        .transition-hover:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
-        }
-
-        /* Button hover effect */
         .btn {
             transition: all 0.3s ease;
         }
@@ -58,9 +46,13 @@
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
 
-        /* Card hover effect */
         .card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
+            background-color: var(--bs-body-bg) !important;
         }
 
         .card:hover {
@@ -68,12 +60,10 @@
             box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
         }
 
-        /* Smooth theme transition */
         html {
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* Optional: subtle background */
         body::before {
             content: "";
             position: fixed;
@@ -87,46 +77,80 @@
             pointer-events: none;
         }
 
-
         body {
             background-color: var(--bs-body-bg);
             color: var(--bs-body-color);
         }
+
         .hero {
             margin-top: 5rem;
         }
+
         .btn-lg {
             min-width: 200px;
+        }
+
+        /* Debug info styling */
+        .debug-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
         }
     </style>
 </head>
 <body>
 
-<!-- ✅ NAVBAR -->
-<nav id="mainNavbar" class="navbar navbar-expand-lg bg-body-tertiary shadow-sm fixed-top transition-hover">
+<!-- NAVBAR -->
+
+<nav id="mainNavbar" class="navbar navbar-expand-lg bg-body-tertiary shadow-sm fixed-top transition-hover fade-in">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
             <img src="/icons/activity.svg" alt="logo" width="24" height="24" class="me-2">
             WatchCat
         </a>
 
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <div class="d-flex align-items-center ms-auto">
-            <span class="me-2">Theme</span>
-            <img id="themeIcon" src="/icons/moon.svg" alt="theme" width="24" height="24" style="cursor: pointer;">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto me-3">
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/supervision/form">
+                        Supervise
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/test">
+                        Test
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/history">
+                        History
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center">
+                <img id="themeIcon" src="/icons/moon.svg" alt="theme" width="24" height="24" style="cursor: pointer;">
+            </div>
         </div>
-
-
     </div>
 </nav>
 
-
-<!-- ✅ HERO SECTION -->
+<!-- HERO SECTION -->
 <div class="container text-center my-5 fade-in">
     <h1 class="display-5 fw-bold mb-4">Welcome to WatchCat</h1>
     <p class="lead mb-4">Real-time Supervision for your Machines & Services</p>
 
-    <!-- Lottie container -->
     <div class="d-flex justify-content-center align-items-center">
         <lottie-player
                 src="/lottie/hero-cat.json"
@@ -138,67 +162,84 @@
         </lottie-player>
     </div>
 
-    <a href="/supervision/form#vm" class="btn btn-outline-primary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover">
-         Get Started
+    <a href="/supervision/form" class="btn btn-outline-primary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover">
+        Get Started
     </a>
 </div>
 
+<!-- Debug Info -->
+<div id="debugInfo" class="debug-info" style="display: none;">
+    <div>WebSocket Status: <span id="wsStatus">Disconnected</span></div>
+    <div>Notifications: <span id="notificationStatus">Unknown</span></div>
+    <div>Last Message: <span id="lastMessage">None</span></div>
+</div>
 
 <script src="/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // Sticky navbar effet
-    window.addEventListener('scroll', () => {
-        const navbar = document.getElementById('mainNavbar');
-        navbar.classList.toggle('scrolled', window.scrollY > 50);
-    });
-
-
+    // Theme functionality
     const themeIcon = document.getElementById('themeIcon');
     const htmlTag = document.documentElement;
 
-    // ⬇️ Appliquer le thème sauvegardé au chargement
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         htmlTag.setAttribute('data-bs-theme', savedTheme);
         themeIcon.src = savedTheme === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
-
-
-
     }
 
-        // Toggle on click
-        themeIcon.addEventListener('click', () => {
+    themeIcon.addEventListener('click', () => {
         const current = htmlTag.getAttribute('data-bs-theme');
         const next = current === 'dark' ? 'light' : 'dark';
         htmlTag.setAttribute('data-bs-theme', next);
         localStorage.setItem('theme', next);
         themeIcon.src = next === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
     });
-
-
-
-
-
-
-
 </script>
 
-
-<!-- Dépendances WebSocket pour STOMP -->
+<!-- WebSocket Dependencies (load only once) -->
 <script src="/js/sockjs.min.js"></script>
 <script src="/js/stomp.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('🔧 Initializing WebSocket notifications...');
+
+        // Debug elements
+        const debugInfo = document.getElementById('debugInfo');
+        const wsStatus = document.getElementById('wsStatus');
+        const notificationStatus = document.getElementById('notificationStatus');
+        const lastMessage = document.getElementById('lastMessage');
+
+        // Show debug info (remove this in production)
+        debugInfo.style.display = 'block';
+
+        // Request notification permission
         if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-            Notification.requestPermission();
+            console.log('📝 Requesting notification permission...');
+            Notification.requestPermission().then(permission => {
+                console.log('🔔 Notification permission:', permission);
+                notificationStatus.textContent = permission;
+            });
+        } else {
+            console.log('🔔 Notification permission:', Notification.permission);
+            notificationStatus.textContent = Notification.permission;
         }
 
+        // Create WebSocket connection
+        console.log('🔌 Creating WebSocket connection...');
         const socket = new SockJS('/ws-notifications');
         const stompClient = Stomp.over(socket);
 
+        // Enable STOMP debug (remove in production)
+        stompClient.debug = console.log;
+
         const notificationQueue = [];
         let isNotifying = false;
+
+        function updateStatus(status) {
+            wsStatus.textContent = status;
+            console.log('📡 WebSocket status:', status);
+        }
 
         function processQueue() {
             if (isNotifying || notificationQueue.length === 0) return;
@@ -206,37 +247,91 @@
             isNotifying = true;
             const alertText = notificationQueue.shift();
 
-            const audio = new Audio('/sounds/notification.mp3');
-            audio.play().catch(() => {});
+            console.log('🚨 Processing notification:', alertText);
+            lastMessage.textContent = alertText.substring(0, 50) + '...';
 
-            const notification = new Notification("🚨 Service Alert", {
-                body: alertText,
-                icon: "/icons/alert.svg"
-            });
+            // Try to play sound (optional)
+            try {
+                const audio = new Audio('/notification.mp3');
+                audio.play().catch(err => console.log('🔇 Audio failed:', err.message));
+            } catch (err) {
+                console.log('🔇 Audio not available');
+            }
 
-            setTimeout(() => {
-                notification.close();
+            // Show browser notification
+            if (Notification.permission === "granted") {
+                const notification = new Notification("🚨 Service Alert", {
+                    body: alertText,
+                    icon: "/icons/activity.svg", // Using existing icon
+                    requireInteraction: false
+                });
+
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                };
+
+                setTimeout(() => {
+                    notification.close();
+                    isNotifying = false;
+                    processQueue();
+                }, 4000);
+            } else {
+                console.log('❌ Notifications not permitted');
+                // Show fallback alert
+                alert('🚨 Service Alert: ' + alertText);
                 isNotifying = false;
-                processQueue(); // affiche la suivante
-            }, 5000); // délai entre chaque affichage (réglable)
-
-            notification.onclick = () => {
-                window.focus();
-                notification.close();
-            };
+                processQueue();
+            }
         }
 
-        stompClient.connect({}, () => {
-            stompClient.subscribe('/topic/service-alerts', (message) => {
-                if (Notification.permission === "granted") {
+        // Connect to WebSocket
+        stompClient.connect({},
+            // Success callback
+            (frame) => {
+                console.log('✅ WebSocket connected:', frame);
+                updateStatus('Connected');
+
+                // Subscribe to service alerts
+                stompClient.subscribe('/topic/service-alerts', (message) => {
+                    console.log('📨 Received message:', message.body);
                     notificationQueue.push(message.body);
                     processQueue();
-                }
-            });
+                });
+
+                console.log('🎯 Subscribed to /topic/service-alerts');
+            },
+            // Error callback
+            (error) => {
+                console.error('❌ WebSocket connection failed:', error);
+                updateStatus('Failed: ' + error);
+
+                // Retry connection after 5 seconds
+                setTimeout(() => {
+                    console.log('🔄 Retrying WebSocket connection...');
+                    updateStatus('Retrying...');
+                    stompClient.connect({},
+                        (frame) => {
+                            console.log('✅ WebSocket reconnected:', frame);
+                            updateStatus('Reconnected');
+                        },
+                        (retryError) => {
+                            console.error('❌ Retry failed:', retryError);
+                            updateStatus('Retry Failed');
+                        }
+                    );
+                }, 5000);
+            }
+        );
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                console.log('👀 Page became visible');
+            }
         });
     });
 </script>
-
 
 </body>
 </html>

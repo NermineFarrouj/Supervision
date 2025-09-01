@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>WatchCat - History</title>
+    <script src="/js/lottie-player.js"></script>
+
+    <!-- Bootstrap 5 -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        .transition-hover {
+            transition: all 0.3s ease;
+        }
+
+
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+
+
+            position: relative;
+            display: inline-block;
+
+
+
+
+
+            font-size: 2rem;
+
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0;
+            height: 3px;
+            background-image: linear-gradient(to right, #00c6ff,#0bb0e7ee,#008cff);
+            transition: width 0.2s ease;
+        }
+
+        h1:hover::after {
+            width: 100%;
+        }
+        /* Debug info styling */
+        .debug-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+        }
+        .transition-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.75rem 1.5rem rgba(13, 110, 253, 0.25);
+        }
+
+        body {
+            padding-top: 70px;
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        html {
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+
+        .table-hover tbody tr:hover {
+            background-color: var(--bs-tertiary-bg) !important;
+        }
+
+        .search-form {
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .view-toggle {
+            background: var(--bs-primary);
+            border-radius: 50px;
+            padding: 0.5rem;
+        }
+
+        .view-toggle .btn {
+            border-radius: 50px;
+            min-width: 120px;
+        }
+
+        .loading-spinner {
+            display: none;
+        }
+
+        .export-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+
+
+        .validation-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            transition: all 0.3s ease;
+        }
+
+        .validation-feedback.invalid-feedback {
+            color: #dc3545;
+        }
+
+        .validation-feedback.valid-feedback {
+            color: #198754;
+        }
+
+
+        .input-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="mainNavbar" class="navbar navbar-expand-lg bg-body-tertiary shadow-sm fixed-top transition-hover">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <img src="/icons/activity.svg" alt="logo" width="24" height="24" class="me-2">
+            WatchCat
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto me-3">
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/supervision/form">
+                        Supervise
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/test">
+                        Test
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/history">
+                        History
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center">
+                <img id="themeIcon" src="/icons/moon.svg" alt="theme" width="24" height="24" style="cursor: pointer;">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="container my-5 fade-in">
+    <!-- Header with View Toggle -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-center mt-5 mb-4">
+            <span id="headerTitle">Machine History</span>
+        </h1>
+
+        <div class="view-toggle">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-light" id="machineBtn" onclick="switchView('machine')">
+                    Machine
+                </button>
+                <button type="button" class="btn btn-outline-light" id="serviceBtn" onclick="switchView('service')">
+                    Service
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="search-form">
+        <form id="searchForm">
+            <div class="row g-3">
+                <!-- Dynamic input field -->
+                <div class="col-md-3">
+                    <label id="inputLabel" for="identifier" class="form-label fw-semibold">IP Address</label>
+                    <div class="input-wrapper">
+                        <input type="text" class="form-control" id="identifier" placeholder="###.###.###.###">
+                        <span  id="identifierIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="identifierFeedback"></div>
+                </div>
+
+                <!-- Port field (only for machine view) -->
+                <div class="col-md-3" id="portField">
+                    <label for="port" class="form-label fw-semibold">Port</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="form-control" id="port" placeholder="22" min="1" max="65535">
+                        <span  id="portIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="portFeedback"></div>
+                </div>
+
+                <!-- Start Date -->
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label fw-semibold">Start Date</label>
+                    <div class="input-wrapper">
+                        <input type="datetime-local" class="form-control" id="startDate">
+                        <span  id="startDateIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="startDateFeedback"></div>
+                </div>
+
+                <!-- End Date -->
+                <div class="col-md-3">
+                    <label for="endDate" class="form-label fw-semibold">End Date</label>
+                    <div class="input-wrapper">
+                        <input type="datetime-local" class="form-control" id="endDate">
+                        <span  id="endDateIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="endDateFeedback"></div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" onclick="searchHistory()">
+                        Search history
+                    </button>
+
+                    <button type="button" class="btn btn-outline-primary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" onclick="searchSpecific()">
+                        Search specific
+                    </button>
+
+                    <button type="button" class="btn btn-outline-secondary btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" onclick="clearResults()">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="text-center loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading data...</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" style="display: none;">
+        <!-- Export Section -->
+        <div class="export-section">
+            <h3 class="mb-0">Results</h3>
+            <button class="btn btn-outline-success btn-lg mt-4 px-4 py-2 rounded-pill shadow transition-hover" onclick="exportToExcel()">
+                Export
+            </button>
+        </div>
+
+        <!-- Results Table -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                        <tr id="tableHeaders">
+                            <!-- Headers will be populated dynamically -->
+                        </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        <!-- Data will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="mt-3 text-muted">
+            <small>Total records: <span id="recordCount">0</span></small>
+        </div>
+    </div>
+</div>
+<div id="debugInfo" class="debug-info" style="display: none;">
+    <div>WebSocket Status: <span id="wsStatus">Disconnected</span></div>
+    <div>Notifications: <span id="notificationStatus">Unknown</span></div>
+    <div>Last Message: <span id="lastMessage">None</span></div>
+</div>
+
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentView = 'machine';
+    let currentData = [];
+
+    // Data persistence using in-memory storage
+    let formDataStorage = {};
+    const STORAGE_KEY = 'watchcat_form_data';
+
+    // Validation patterns
+    const validationRules = {
+        ip: /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/,
+        serviceName: /^[a-zA-Z0-9]([a-zA-Z0-9\-_]*[a-zA-Z0-9])?$/,
+        port: (value) => {
+            const num = parseInt(value);
+            return !isNaN(num) && num >= 1 && num <= 65535;
+        }
+    };
+
+    // Save form data to memory
+    function saveFormData() {
+        formDataStorage[STORAGE_KEY] = {
+            view: currentView,
+            identifier: document.getElementById('identifier').value,
+            port: document.getElementById('port').value,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            timestamp: Date.now()
+        };
+    }
+
+    // Load form data from memory
+    function loadFormData() {
+        const formData = formDataStorage[STORAGE_KEY];
+
+        if (formData && formData.timestamp && (Date.now() - formData.timestamp < 24 * 60 * 60 * 1000)) {
+            document.getElementById('identifier').value = formData.identifier || '';
+            document.getElementById('port').value = formData.port || '';
+            document.getElementById('startDate').value = formData.startDate || '';
+            document.getElementById('endDate').value = formData.endDate || '';
+
+            if (formData.view && formData.view !== currentView) {
+                switchView(formData.view);
+            }
+
+            // Re-validate loaded data
+            validateField('identifier', document.getElementById('identifier').value);
+            validateField('port', document.getElementById('port').value);
+            validateField('startDate', document.getElementById('startDate').value);
+            validateField('endDate', document.getElementById('endDate').value);
+        }
+    }
+
+    // Validation functions
+    function validateField(fieldId, value) {
+        const field = document.getElementById(fieldId);
+        const feedback = document.getElementById(fieldId + 'Feedback');
+        const icon = document.getElementById(fieldId + 'Icon');
+
+        let isValid = false;
+        let message = '';
+
+        switch (fieldId) {
+            case 'identifier':
+                if (!value.trim()) {
+                    message = currentView === 'machine' ? 'IP address is required' : 'Service name is required';
+                } else if (currentView === 'machine') {
+                    isValid = validationRules.ip.test(value);
+                    message = isValid ? 'Valid IP address' : 'Invalid IP address format (e.g., 192.168.1.100)';
+                } else {
+                    isValid = validationRules.serviceName.test(value);
+                    message = isValid ? 'Valid service name' : 'Invalid service name (alphanumeric, hyphens, underscores)';
+                }
+                break;
+
+            case 'port':
+                if (value.trim() === '') {
+                    isValid = true;
+                    message = 'Port is optional';
+                } else {
+                    isValid = validationRules.port(value);
+                    message = isValid ? 'Valid port number' : 'Port must be between 1 and 65535';
+                }
+                break;
+
+            case 'startDate':
+            case 'endDate':
+                if (!value.trim()) {
+                    message = 'Date is required for specific search';
+                } else {
+                    const date = new Date(value);
+                    const now = new Date();
+                    isValid = date <= now;
+                    message = isValid ? 'Valid date' : 'Date cannot be in the future';
+
+                    if (isValid && fieldId === 'endDate') {
+                        const startDate = new Date(document.getElementById('startDate').value);
+                        if (startDate && date < startDate) {
+                            isValid = false;
+                            message = 'End date must be after start date';
+                        }
+                    }
+                }
+                break;
+        }
+
+        // Update field appearance
+        field.classList.remove('is-valid', 'is-invalid');
+        if (value.trim()) {
+            field.classList.add(isValid ? 'is-valid' : 'is-invalid');
+        }
+
+        // Update feedback
+        feedback.textContent = message;
+        feedback.classList.remove('valid-feedback', 'invalid-feedback');
+        if (value.trim()) {
+            feedback.classList.add(isValid ? 'valid-feedback' : 'invalid-feedback');
+        }
+
+        // Update icon
+        icon.innerHTML = '';
+        if (value.trim()) {
+            icon.innerHTML = isValid ? '✓' : '✗';
+            icon.style.color = isValid ? '#198754' : '#dc3545';
+        }
+
+        return isValid || (fieldId === 'port' && value.trim() === '');
+    }
+
+    // Validate entire form
+    function validateForm(isSpecificSearch = false) {
+        const identifier = document.getElementById('identifier').value;
+        const port = document.getElementById('port').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        let isValid = true;
+
+        // Always validate identifier
+        if (!validateField('identifier', identifier)) {
+            isValid = false;
+        }
+
+        // Validate port if provided
+        if (!validateField('port', port)) {
+            isValid = false;
+        }
+
+        // For specific search, validate dates
+        if (isSpecificSearch) {
+            if (!validateField('startDate', startDate)) {
+                isValid = false;
+            }
+            if (!validateField('endDate', endDate)) {
+                isValid = false;
+            }
+
+            if (!startDate || !endDate) {
+                showNotification('Please provide both start and end dates for specific search', 'warning');
+                isValid = false;
+            }
+        }
+
+        return isValid;
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Theme functionality
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlTag = document.documentElement;
+
+    // Setup validation
+    function setupValidation() {
+        const fields = ['identifier', 'port', 'startDate', 'endDate'];
+
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+
+            field.addEventListener('input', () => {
+                validateField(fieldId, field.value);
+                saveFormData();
+            });
+
+            field.addEventListener('blur', () => {
+                validateField(fieldId, field.value);
+            });
+        });
+    }
+
+
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        htmlTag.setAttribute('data-bs-theme', savedTheme);
+        themeIcon.src = savedTheme === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
+    }
+
+    themeIcon.addEventListener('click', () => {
+        const current = htmlTag.getAttribute('data-bs-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        htmlTag.setAttribute('data-bs-theme', next);
+        localStorage.setItem('theme', next);
+        themeIcon.src = next === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
+    });
+    // View switching functionality
+    function switchView(view) {
+        currentView = view;
+
+        const machineBtn = document.getElementById('machineBtn');
+        const serviceBtn = document.getElementById('serviceBtn');
+        const headerTitle = document.getElementById('headerTitle');
+        const inputLabel = document.getElementById('inputLabel');
+        const identifier = document.getElementById('identifier');
+        const portField = document.getElementById('portField');
+
+        if (view === 'machine') {
+            machineBtn.className = 'btn btn-light';
+            serviceBtn.className = 'btn btn-outline-light';
+            headerTitle.textContent = 'Machine History';
+            inputLabel.textContent = 'IP Address';
+            identifier.placeholder = '###.###.###.###';
+            portField.style.display = 'block';
+        } else {
+            machineBtn.className = 'btn btn-outline-light';
+            serviceBtn.className = 'btn btn-light';
+            headerTitle.textContent = 'Service History';
+            inputLabel.textContent = 'Service Name';
+            identifier.placeholder = 'user-service';
+            portField.style.display = 'none';
+        }
+
+        validateField('identifier', identifier.value);
+        saveFormData();
+        clearResults();
+    }
+
+    // Search functions
+    async function searchHistory() {
+        if (!validateForm(false)) {
+            showNotification('Please fix the validation errors before searching', 'danger');
+            return;
+        }
+
+        const identifier = document.getElementById('identifier').value;
+        const port = document.getElementById('port').value;
+
+        showLoading();
+        try {
+            let endpoint;
+            if (currentView === 'machine') {
+                endpoint = `/vm-status/history?ip=${encodeURIComponent(identifier)}`;
+                if (port) {
+                    endpoint += `&port=${encodeURIComponent(port)}`;
+                }
+            } else {
+                endpoint = `/service-status/history?serviceName=${encodeURIComponent(identifier)}`;
+            }
+
+            const response = await fetch(endpoint);
+            const data = await response.json();
+            displayResults(data);
+            showNotification('Search completed successfully', 'success');
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error fetching data: ' + error.message, 'danger');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function searchSpecific() {
+        if (!validateForm(true)) {
+            showNotification('Please fix the validation errors before searching', 'danger');
+            return;
+        }
+
+        const identifier = document.getElementById('identifier').value;
+        const port = document.getElementById('port').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        showLoading();
+        try {
+            let endpoint;
+            if (currentView === 'machine') {
+                if (!port){
+                    endpoint = `/vm-status/at?ip=${encodeURIComponent(identifier)}&start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`;
+                } else {
+                    endpoint = `/vm-status/between?ip=${encodeURIComponent(identifier)}&port=${encodeURIComponent(port)}&start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`;
+                }
+            } else {
+                endpoint = `/service-status/at?serviceName=${encodeURIComponent(identifier)}&start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`;
+            }
+
+            const response = await fetch(endpoint);
+            const data = await response.json();
+            displayResults(data);
+            showNotification('Specific search completed successfully', 'success');
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error fetching data: ' + error.message, 'danger');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function displayResults(data) {
+        currentData = data;
+        const tableHeaders = document.getElementById('tableHeaders');
+        const tableBody = document.getElementById('tableBody');
+        const recordCount = document.getElementById('recordCount');
+        const resultsSection = document.getElementById('resultsSection');
+
+        tableHeaders.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted py-4">No data found</td></tr>';
+            recordCount.textContent = '0';
+            resultsSection.style.display = 'block';
+            return;
+        }
+
+        const headers = currentView === 'machine'
+            ? ['IP Address', 'Port', 'Status', 'Tested At']
+            : ['Service Name', 'IP Address', 'Port', 'Status', 'Version', 'Tested At'];
+
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            tableHeaders.appendChild(th);
+        });
+
+        data.forEach(item => {
+            const row = document.createElement('tr');
+
+            if (currentView === 'machine') {
+                row.innerHTML = `
+                    <td>${item.ipAddress}</td>
+                    <td>${item.port || 'N/A'}</td>
+                    <td><span class="badge ${getStatusClass(item.status)}">${item.status}</span></td>
+                    <td>${formatDateTime(item.testedAt)}</td>
+                `;
+            } else {
+                row.innerHTML = `
+                    <td>${item.serviceName || 'N/A'}</td>
+                    <td>${item.ipAddress}</td>
+                    <td>${item.port}</td>
+                    <td><span class="badge ${getStatusClass(item.status)}">${item.status}</span></td>
+                    <td>${item.version || 'N/A'}</td>
+                    <td>${formatDateTime(item.testedAt)}</td>
+                `;
+            }
+
+            tableBody.appendChild(row);
+        });
+
+        recordCount.textContent = data.length;
+        resultsSection.style.display = 'block';
+    }
+
+    function getStatusClass(status) {
+        switch (status.toUpperCase()) {
+            case 'UP': return 'bg-success';
+            case 'DOWN': return 'bg-danger';
+            case 'NO_HEALTH_ENDPOINT': return 'bg-warning text-dark';
+            default: return 'bg-secondary';
+        }
+    }
+
+    function formatDateTime(dateTime) {
+        return new Date(dateTime).toLocaleString('fr-FR');
+    }
+
+    function showLoading() {
+        document.getElementById('loadingSpinner').style.display = 'block';
+        document.getElementById('resultsSection').style.display = 'none';
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingSpinner').style.display = 'none';
+    }
+
+    function clearResults() {
+        document.getElementById('resultsSection').style.display = 'none';
+        currentData = [];
+
+        formDataStorage[STORAGE_KEY] = null;
+
+        const fields = ['identifier', 'port', 'startDate', 'endDate'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            const feedback = document.getElementById(fieldId + 'Feedback');
+            const icon = document.getElementById(fieldId + 'Icon');
+
+            field.value = '';
+            field.classList.remove('is-valid', 'is-invalid');
+            feedback.textContent = '';
+            feedback.classList.remove('valid-feedback', 'invalid-feedback');
+            icon.innerHTML = '';
+        });
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+        setupValidation();
+        switchView('machine');
+        loadFormData();
+    });
+
+    // Save data periodically
+    setInterval(saveFormData, 30000);
+
+    function exportToExcel() {
+        if (currentData.length === 0) {
+            showNotification('No data to export', 'warning');
+            return;
+        }
+
+        fetch('/export/displayed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: currentView,
+                data: currentData
+            })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("Export failed");
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'watchcat-history.xlsx';
+                a.click();
+                window.URL.revokeObjectURL(url);
+                showNotification('Export completed successfully', 'success');
+            })
+            .catch(error => {
+                console.error(error);
+                showNotification("Export failed: " + error.message, 'danger');
+            });
+    }
+
+</script>
+
+
+
+<!-- WebSocket Dependencies (load only once) -->
+<script src="/js/sockjs.min.js"></script>
+<script src="/js/stomp.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🔧 Initializing WebSocket notifications...');
+
+        // Debug elements
+        const debugInfo = document.getElementById('debugInfo');
+        const wsStatus = document.getElementById('wsStatus');
+        const notificationStatus = document.getElementById('notificationStatus');
+        const lastMessage = document.getElementById('lastMessage');
+
+        // Show debug info (remove this in production)
+        debugInfo.style.display = 'block';
+
+        // Request notification permission
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            console.log('📝 Requesting notification permission...');
+            Notification.requestPermission().then(permission => {
+                console.log('🔔 Notification permission:', permission);
+                notificationStatus.textContent = permission;
+            });
+        } else {
+            console.log('🔔 Notification permission:', Notification.permission);
+            notificationStatus.textContent = Notification.permission;
+        }
+
+        // Create WebSocket connection
+        console.log('🔌 Creating WebSocket connection...');
+        const socket = new SockJS('/ws-notifications');
+        const stompClient = Stomp.over(socket);
+
+        // Enable STOMP debug (remove in production)
+        stompClient.debug = console.log;
+
+        const notificationQueue = [];
+        let isNotifying = false;
+
+        function updateStatus(status) {
+            wsStatus.textContent = status;
+            console.log('📡 WebSocket status:', status);
+        }
+
+        function processQueue() {
+            if (isNotifying || notificationQueue.length === 0) return;
+
+            isNotifying = true;
+            const alertText = notificationQueue.shift();
+
+            console.log('🚨 Processing notification:', alertText);
+            lastMessage.textContent = alertText.substring(0, 50) + '...';
+
+            // Try to play sound (optional)
+            try {
+                const audio = new Audio('/notification.mp3');
+                audio.play().catch(err => console.log('🔇 Audio failed:', err.message));
+            } catch (err) {
+                console.log('🔇 Audio not available');
+            }
+
+            // Show browser notification
+            if (Notification.permission === "granted") {
+                const notification = new Notification("🚨 Service Alert", {
+                    body: alertText,
+                    icon: "/icons/activity.svg", // Using existing icon
+                    requireInteraction: false
+                });
+
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                };
+
+                setTimeout(() => {
+                    notification.close();
+                    isNotifying = false;
+                    processQueue();
+                }, 4000);
+            } else {
+                console.log('❌ Notifications not permitted');
+                // Show fallback alert
+                alert('🚨 Service Alert: ' + alertText);
+                isNotifying = false;
+                processQueue();
+            }
+        }
+
+        // Connect to WebSocket
+        stompClient.connect({},
+            // Success callback
+            (frame) => {
+                console.log('✅ WebSocket connected:', frame);
+                updateStatus('Connected');
+
+                // Subscribe to service alerts
+                stompClient.subscribe('/topic/service-alerts', (message) => {
+                    console.log('📨 Received message:', message.body);
+                    notificationQueue.push(message.body);
+                    processQueue();
+                });
+
+                console.log('🎯 Subscribed to /topic/service-alerts');
+            },
+            // Error callback
+            (error) => {
+                console.error('❌ WebSocket connection failed:', error);
+                updateStatus('Failed: ' + error);
+
+                // Retry connection after 5 seconds
+                setTimeout(() => {
+                    console.log('🔄 Retrying WebSocket connection...');
+                    updateStatus('Retrying...');
+                    stompClient.connect({},
+                        (frame) => {
+                            console.log('✅ WebSocket reconnected:', frame);
+                            updateStatus('Reconnected');
+                        },
+                        (retryError) => {
+                            console.error('❌ Retry failed:', retryError);
+                            updateStatus('Retry Failed');
+                        }
+                    );
+                }, 5000);
+            }
+        );
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                console.log('👀 Page became visible');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

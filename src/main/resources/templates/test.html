@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WatchCat</title>
+
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .fade-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s ease-out;
+        }
+
+
+
+
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+
+
+            position: relative;
+            display: inline-block;
+
+
+
+
+
+            font-size: 2rem;
+
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+            }
+
+
+        h1::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0;
+            height: 3px;
+            background-image: linear-gradient(to right, #00c6ff,#0bb0e7ee,#008cff);
+            transition: width 0.2s ease;
+        }
+
+        h1:hover::after {
+            width: 100%;
+        }
+
+
+
+        /* Debug info styling */
+        .debug-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+        }
+
+        .fade-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body {
+            padding-top: 70px;
+        }
+
+        .transition {
+            transition: box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
+            background-color: var(--bs-body-bg) !important;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        html {
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: -50px;
+            left: -50px;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 20%, #e0f7ff 0%, transparent 70%);
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+        }
+
+        .card {
+            margin-top: 2rem;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+        }
+        body {
+            padding-top: 70px;
+            background: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            min-height: 100vh;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .test-section {
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        /* New styles to improve card layout */
+        .test-section {
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .test-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 15px;
+            background: var(--bs-tertiary-bg);
+            border-left: 4px solid var(--bs-primary);
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        .navbar.scrolled {
+            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
+            background-color: var(--bs-body-bg) !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.65rem;
+            border-radius: 50rem;
+            font-weight: 600;
+        }
+
+        .status-up {
+            background-color: #d1edff;
+            color: #0c5460;
+        }
+
+        .status-down {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-testing {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .validation-icon {
+            position: absolute;
+            right: 10px;
+            top: 38px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            vertical-align: middle;
+            border: 0.15em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+
+<nav id="mainNavbar" class="navbar navbar-expand-lg bg-body-tertiary shadow-sm fixed-top transition-hover fade-in">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <img src="/icons/activity.svg" alt="logo" width="24" height="24" class="me-2">
+            WatchCat
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto me-3">
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/supervision/form">
+                        Supervise
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/test">
+                        Test
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/history">
+                        History
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center">
+                <img id="themeIcon" src="/icons/moon.svg" alt="theme" width="24" height="24" style="cursor: pointer;">
+            </div>
+        </div>
+    </div>
+</nav>
+        <div class="container fade-in text-center  d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-center mt-5 mb-4">
+            Test
+        </h1>
+        <p class="lead">real-time</p>
+    </div>
+
+    <div class="test-section shadow-sm fade-scroll">
+        <h2 class="h4 mb-4 fw-bold">
+            <img src="/icons/hdd-network.svg" width="20" height="20" class="me-1" alt="VM">
+            Machine </h2>
+        <form id="machineForm">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="machineIp" class="form-label fw-semibold">IP Address</label>
+                    <div class="input-wrapper">
+                        <input type="text" class="form-control" id="machineIp" placeholder="###.###.###.###">
+                        <span class="validation-icon" id="machineIpIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="machineIpFeedback"></div>
+                </div>
+                <div class="col-md-3">
+                    <label for="machinePort" class="form-label fw-semibold">Port</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="form-control" id="machinePort" placeholder="22" min="1" max="65535">
+                        <span class="validation-icon" id="machinePortIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="machinePortFeedback"></div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-primary btn-lg px-4 py-2 rounded-pill shadow transition-hover w-100" onclick="testMachine()" id="machineTestBtn">
+                        Test
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div class="results" id="machineResults"></div>
+    </div>
+
+    <div class="test-section shadow-sm fade-scroll">
+        <h2 class="h4 mb-4 fw-bold">
+            <img src="/icons/cloud-check.svg" width="20" height="20" class="me-1" alt="MS">
+            Service </h2>
+        <form id="serviceForm">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="serviceIp" class="form-label fw-semibold">IP Address</label>
+                    <div class="input-wrapper">
+                        <input type="text" class="form-control" id="serviceIp" placeholder="###.###.###.###">
+                        <span class="validation-icon" id="serviceIpIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="serviceIpFeedback"></div>
+                </div>
+                <div class="col-md-3">
+                    <label for="servicePort" class="form-label fw-semibold">Port</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="form-control" id="servicePort" placeholder="80" min="1" max="65535">
+                        <span class="validation-icon" id="servicePortIcon"></span>
+                    </div>
+                    <div class="validation-feedback" id="servicePortFeedback"></div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-primary btn-lg px-4 py-2 rounded-pill shadow transition-hover w-100" onclick="testService()" id="serviceTestBtn">
+                        Test
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div class="results" id="serviceResults"></div>
+    </div>
+
+<div id="debugInfo" class="debug-info" style="display: none;">
+    <div>WebSocket Status: <span id="wsStatus">Disconnected</span></div>
+    <div>Notifications: <span id="notificationStatus">Unknown</span></div>
+    <div>Last Message: <span id="lastMessage">None</span></div>
+</div>
+
+
+<!-- Bootstrap JS -->
+<script src="/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const faders = document.querySelectorAll('.fade-scroll');
+
+    const appearOnScroll = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    faders.forEach(el => appearOnScroll.observe(el));
+
+    window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('mainNavbar');
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlTag = document.documentElement;
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        htmlTag.setAttribute('data-bs-theme', savedTheme);
+        themeIcon.src = savedTheme === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
+    }
+
+    themeIcon.addEventListener('click', () => {
+        const current = htmlTag.getAttribute('data-bs-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        htmlTag.setAttribute('data-bs-theme', next);
+        localStorage.setItem('theme', next);
+        themeIcon.src = next === 'dark' ? '/icons/sun.svg' : '/icons/moon.svg';
+    });
+
+    // Validation System (Adapted from history.html)
+    const validationRules = {
+        ip: /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/,
+        port: (value) => {
+            const num = parseInt(value);
+            return !isNaN(num) && num >= 1 && num <= 65535;
+        }
+    };
+
+    // Setup validation for all fields
+    function setupValidation() {
+        const fields = [
+            { id: 'machineIp', type: 'ip' },
+            { id: 'machinePort', type: 'port' },
+            { id: 'serviceIp', type: 'ip' },
+            { id: 'servicePort', type: 'port' }
+        ];
+
+        fields.forEach(field => {
+            const element = document.getElementById(field.id);
+            const icon = document.getElementById(field.id + 'Icon');
+            const feedback = document.getElementById(field.id + 'Feedback');
+
+            element.addEventListener('input', () => validateField(field.id, field.type));
+            element.addEventListener('blur', () => validateField(field.id, field.type));
+        });
+    }
+
+    function validateField(fieldId, fieldType) {
+        const field = document.getElementById(fieldId);
+        const value = field.value.trim();
+        const icon = document.getElementById(fieldId + 'Icon');
+        const feedback = document.getElementById(fieldId + 'Feedback');
+
+        let isValid = false;
+        let message = '';
+
+        if (fieldType === 'ip') {
+            if (!value) {
+                message = 'IP address is required';
+            } else {
+                isValid = validationRules.ip.test(value);
+                message = isValid ? 'Valid IP address' : 'Invalid IP format (e.g., 192.168.1.100)';
+            }
+        } else if (fieldType === 'port') {
+            if (!value) {
+                message = 'Port is required';
+            } else {
+                isValid = validationRules.port(value);
+                message = isValid ? 'Valid port' : 'Port must be 1-65535';
+            }
+        }
+
+        // Update UI
+        field.classList.remove('is-valid', 'is-invalid');
+        icon.innerHTML = '';
+        feedback.textContent = '';
+        feedback.classList.remove('valid-feedback', 'invalid-feedback');
+
+        if (value) {
+            field.classList.add(isValid ? 'is-valid' : 'is-invalid');
+            icon.innerHTML = isValid ? '✓' : '✗';
+            icon.style.color = isValid ? '#198754' : '#dc3545';
+            feedback.textContent = message;
+            feedback.classList.add(isValid ? 'valid-feedback' : 'invalid-feedback');
+        }
+
+        return isValid;
+    }
+
+    function validateForm(formId) {
+        let isValid = true;
+        const form = document.getElementById(formId);
+        const inputs = form.querySelectorAll('input');
+
+        inputs.forEach(input => {
+            const fieldType = input.id.includes('Port') ? 'port' : 'ip';
+            if (!validateField(input.id, fieldType)) {
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+
+    // Original test functions (updated with validation)
+    async function testMachine() {
+        if (!validateForm('machineForm')) {
+            showNotification('Please fix validation errors', 'danger');
+            return;
+        }
+
+        const ip = document.getElementById('machineIp').value.trim();
+        const port = document.getElementById('machinePort').value.trim();
+        const btn = document.getElementById('machineTestBtn');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Testing...';
+
+        showTestingState('machineResults', ip, port);
+
+        try {
+            const result = await testMachineEndpoint(ip, port);
+            showResults('machineResults', result);
+        } catch (error) {
+            showResults('machineResults', {
+                ip: ip,
+                port: port,
+                status: 'down',
+                responseTime: 0,
+                timestamp: new Date().toLocaleString(),
+                error: 'Test failed: ' + error.message
+            });
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Test';
+        }
+    }
+
+    async function testService() {
+        if (!validateForm('serviceForm')) {
+            showNotification('Please fix validation errors', 'danger');
+            return;
+        }
+
+        const ip = document.getElementById('serviceIp').value.trim();
+        const port = document.getElementById('servicePort').value.trim();
+        const btn = document.getElementById('serviceTestBtn');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Testing...';
+
+        showTestingState('serviceResults', ip, port);
+
+        try {
+            const result = await testServiceEndpoint(ip, port);
+            showResults('serviceResults', result);
+        } catch (error) {
+            showResults('serviceResults', {
+                ip: ip,
+                port: port,
+                status: 'down',
+                responseTime: 0,
+
+                timestamp: new Date().toLocaleString(),
+                error: 'Test failed: ' + error.message
+            });
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Test';
+        }
+    }
+
+    // Helper functions (from original test.html)
+    function showNotification(message, type = 'info') {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
+    }
+
+    function showTestingState(resultsId, ip, port) {
+        const resultsDiv = document.getElementById(resultsId);
+        resultsDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <span><strong>Testing:</strong> ${ip}:${port}</span>
+                <span class="status-badge status-testing">
+                    <span class="loading-spinner"></span> Testing...
+                </span>
+            </div>
+        `;
+        resultsDiv.classList.add('show');
+    }
+
+    function showResults(resultsId, data) {
+        const resultsDiv = document.getElementById(resultsId);
+        resultsDiv.innerHTML = `
+        <div class="result-item">
+            <span><strong>Target:</strong> ${data.ip}:${data.port}</span>
+            <span class="status-badge ${getStatusClass(data.status)}">${data.status.toUpperCase()}</span>
+        </div>
+        <div class="result-item">
+            <span><strong>Response Time:</strong> ${data.responseTime}ms</span>
+        </div>
+        ${data.version ? `
+        <div class="result-item">
+            <span><strong>Version:</strong> ${data.version}</span>
+        </div>
+        ` : ''}
+        <div class="result-item">
+            <span><strong>Test Time:</strong> ${data.timestamp}</span>
+        </div>
+        ${data.error ? `
+        <div class="result-item text-danger">
+            <span><strong>Error:</strong> ${data.error}</span>
+        </div>
+        ` : ''}
+    `;
+        resultsDiv.classList.add('show');
+    }
+
+
+    function getStatusClass(status) {
+        switch (status.toLowerCase()) {
+            case 'up': return 'status-up';
+            case 'down': return 'status-down';
+            default: return 'status-testing';
+        }
+    }
+
+    // Original API call functions (unchanged)
+    async function testMachineEndpoint(ip, port) {
+        const startTime = Date.now();
+        try {
+            const response = await fetch('/test/machine', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ip: ip, port: parseInt(port) })
+            });
+            const endTime = Date.now();
+            const responseTime = endTime - startTime;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return {
+                ip: ip,
+                port: port,
+                status: data.status.toLowerCase(),
+                responseTime: responseTime,
+                timestamp: new Date().toLocaleString(),
+                error: data.status === 'DOWN' ? 'Port not reachable' : null
+            };
+        } catch (error) {
+            const endTime = Date.now();
+            const responseTime = endTime - startTime;
+            return {
+                ip: ip,
+                port: port,
+                status: 'down',
+                responseTime: responseTime,
+                timestamp: new Date().toLocaleString(),
+                error: 'Test failed: ' + error.message
+            };
+        }
+    }
+
+    async function testServiceEndpoint(ip, port) {
+        const startTime = Date.now();
+        try {
+            const response = await fetch('/test/service', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ip: ip, port: parseInt(port) })
+            });
+            const endTime = Date.now();
+            const responseTime = endTime - startTime;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return {
+                ip: ip,
+                port: port,
+                status: data.status.toLowerCase(),
+                responseTime: responseTime,
+                timestamp: new Date().toLocaleString(),
+                version: data.version || null,
+                error: data.status === 'DOWN' ? 'Service not available' :
+                    data.status === 'NO_HEALTH_ENDPOINT' ? 'No health endpoint available' : null
+            };
+        } catch (error) {
+            const endTime = Date.now();
+            const responseTime = endTime - startTime;
+            return {
+                ip: ip,
+                port: port,
+                status: 'down',
+                responseTime: responseTime,
+                timestamp: new Date().toLocaleString(),
+                error: 'Test failed: ' + error.message
+            };
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        setupValidation();
+
+        // Autofill common ports
+        document.getElementById('machineIp').addEventListener('blur', function() {
+            const port = document.getElementById('machinePort');
+            if (this.value && !port.value) port.value = '22';
+        });
+
+        document.getElementById('serviceIp').addEventListener('blur', function() {
+            const port = document.getElementById('servicePort');
+            if (this.value && !port.value) port.value = '80';
+        });
+    });
+</script>
+
+<!-- WebSocket Dependencies (load only once) -->
+<script src="/js/sockjs.min.js"></script>
+<script src="/js/stomp.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🔧 Initializing WebSocket notifications...');
+
+        // Debug elements
+        const debugInfo = document.getElementById('debugInfo');
+        const wsStatus = document.getElementById('wsStatus');
+        const notificationStatus = document.getElementById('notificationStatus');
+        const lastMessage = document.getElementById('lastMessage');
+
+        // Show debug info (remove this in production)
+        debugInfo.style.display = 'block';
+
+        // Request notification permission
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            console.log('📝 Requesting notification permission...');
+            Notification.requestPermission().then(permission => {
+                console.log('🔔 Notification permission:', permission);
+                notificationStatus.textContent = permission;
+            });
+        } else {
+            console.log('🔔 Notification permission:', Notification.permission);
+            notificationStatus.textContent = Notification.permission;
+        }
+
+        // Create WebSocket connection
+        console.log('🔌 Creating WebSocket connection...');
+        const socket = new SockJS('/ws-notifications');
+        const stompClient = Stomp.over(socket);
+
+        // Enable STOMP debug (remove in production)
+        stompClient.debug = console.log;
+
+        const notificationQueue = [];
+        let isNotifying = false;
+
+        function updateStatus(status) {
+            wsStatus.textContent = status;
+            console.log('📡 WebSocket status:', status);
+        }
+
+        function processQueue() {
+            if (isNotifying || notificationQueue.length === 0) return;
+
+            isNotifying = true;
+            const alertText = notificationQueue.shift();
+
+            console.log('🚨 Processing notification:', alertText);
+            lastMessage.textContent = alertText.substring(0, 50) + '...';
+
+            // Try to play sound (optional)
+            try {
+                const audio = new Audio('/notification.mp3');
+                audio.play().catch(err => console.log('🔇 Audio failed:', err.message));
+            } catch (err) {
+                console.log('🔇 Audio not available');
+            }
+
+            // Show browser notification
+            if (Notification.permission === "granted") {
+                const notification = new Notification("🚨 Service Alert", {
+                    body: alertText,
+                    icon: "/icons/activity.svg", // Using existing icon
+                    requireInteraction: false
+                });
+
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                };
+
+                setTimeout(() => {
+                    notification.close();
+                    isNotifying = false;
+                    processQueue();
+                }, 4000);
+            } else {
+                console.log('❌ Notifications not permitted');
+                // Show fallback alert
+                alert('🚨 Service Alert: ' + alertText);
+                isNotifying = false;
+                processQueue();
+            }
+        }
+
+        // Connect to WebSocket
+        stompClient.connect({},
+            // Success callback
+            (frame) => {
+                console.log('✅ WebSocket connected:', frame);
+                updateStatus('Connected');
+
+                // Subscribe to service alerts
+                stompClient.subscribe('/topic/service-alerts', (message) => {
+                    console.log('📨 Received message:', message.body);
+                    notificationQueue.push(message.body);
+                    processQueue();
+                });
+
+                console.log('🎯 Subscribed to /topic/service-alerts');
+            },
+            // Error callback
+            (error) => {
+                console.error('❌ WebSocket connection failed:', error);
+                updateStatus('Failed: ' + error);
+
+                // Retry connection after 5 seconds
+                setTimeout(() => {
+                    console.log('🔄 Retrying WebSocket connection...');
+                    updateStatus('Retrying...');
+                    stompClient.connect({},
+                        (frame) => {
+                            console.log('✅ WebSocket reconnected:', frame);
+                            updateStatus('Reconnected');
+                        },
+                        (retryError) => {
+                            console.error('❌ Retry failed:', retryError);
+                            updateStatus('Retry Failed');
+                        }
+                    );
+                }, 5000);
+            }
+        );
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                console.log('👀 Page became visible');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,10 +28,10 @@ public class ServiceStatusServiceImpl implements IServiceStatusService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public void testServicesFromFile(String filePath) {
+    public void testServicesFromFile(String filePath) throws IOException {
         List<String[]> ipPortList = MSReadIpPortFromFile(filePath);
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(10); // adapt le pool si besoin
+        ExecutorService threadPool = Executors.newFixedThreadPool(10); // le pool
 
         for (String[] ipPort : ipPortList) {
             threadPool.submit(() -> {
@@ -57,7 +58,7 @@ public class ServiceStatusServiceImpl implements IServiceStatusService {
                                     version = (v != null) ? v.toString() : null;
                                 }
                             } catch (Exception e) {
-                                System.err.println("Impossible de récupérer la version du MS " + serviceName);
+                                System.err.println("Not able to recover MS version " + serviceName);
                             }
 
                         } else {
@@ -66,22 +67,19 @@ public class ServiceStatusServiceImpl implements IServiceStatusService {
 
                     } catch (Exception e) {
                         boolean isOpen = PortChecker.isPortOpen(ip, port, 2000);
-                        status = isOpen ? "NO_HEALTH_ENDPOINT" : "DOWN";
+                        status = isOpen ? "NO_HEALTH_ENDPOINT(UP)" : "DOWN";
                     }
-
-
-
 
 
 
                     //boolean isDownNow = "DOWN".equals(status);
 
                     if ("DOWN".equals(status)) {
-                        System.out.println("📣 Notification envoyée pour : " + serviceName);
+                        System.out.println(" Notification sent for : " + serviceName);
                         notificationService.notifyServiceDown(serviceName);
 
                         try {
-                            Thread.sleep(200); // 🔁 éviter que les messages STOMP se superposent trop vite
+                            Thread.sleep(100); // eviter que messages STOMP se superposent trop vite
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt(); // bonne pratique
                         }
@@ -120,19 +118,51 @@ public class ServiceStatusServiceImpl implements IServiceStatusService {
         }
     }
 
-
-    private List<String[]> MSReadIpPortFromFile(String filePath) {
+    @Override
+    public List<String[]> MSReadIpPortFromFile(String filePath) throws IOException {
         List<String[]> MSipPorts = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (!line.isBlank() && line.contains(":")) {
-                    MSipPorts.add(line.trim().split(":"));
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    String[] parts = line.split(":");
+                    if (parts.length != 3) {
+                        throw new IOException("Invalid format (expected: Name : IP : Port ) in line : \"" + line + "\"");
+                    }
+                    String name = parts[0];
+                    String ip = parts[1];
+                    String portStr = parts[2];
+
+                    if (!isValidIp(ip)) {
+                        throw new IOException("IP invalid in line : \"" + line + "\"");
+                    }
+                    if (!isValidPort(portStr)) {
+                        throw new IOException("Port invalid in line : \"" + line + "\"");
+                    }
+
+                    MSipPorts.add(parts);
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Erreur lecture fichier MS: " + e.getMessage());
         }
         return MSipPorts;
     }
+
+    private boolean isValidIp(String ip) {
+        return ip.matches("^\\d{1,3}(\\.\\d{1,3}){3}$");
+    }
+
+    private boolean isValidPort(String portStr) {
+        try {
+            int port = Integer.parseInt(portStr);
+            return port >= 1 && port <= 65535;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public void validateMsFile(String filePath) throws IOException {
+        MSReadIpPortFromFile(filePath); // si exception => fichier invalide
+    }
+
 }
